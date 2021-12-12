@@ -1,8 +1,10 @@
-package com.skymanov.popchat;
+package com.skymanov.popchat.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.skymanov.popchat.R;
 
 public class MainActivity extends AppCompatActivity {
 

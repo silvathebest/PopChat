@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">PopChat</string>
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="login_to_continue">Login to continue</string>
+    <string name="email_hint">Email…</string>
+    <string name="password_hint">Password…</string>
+    <string name="sign_in">Sign In</string>
+    <string name="create_new_account">Create new account</string>
+    <string name="add_image">Add Image</string>
+    <string name="name_hint">Name…</string>
+    <string name="confirm_password">Confirm Password…</string>
+    <string name="sign_up">Sign Up</string>
 </resources>
