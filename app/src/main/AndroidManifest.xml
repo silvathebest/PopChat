@@ -17,9 +17,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PopChat">
         <activity
+            android:name=".activities.UsersActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.SignUpActivity"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".activities.SignInActivity"
             android:exported="true"
@@ -30,7 +32,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".activities.MainActivity" />
 
         <service
