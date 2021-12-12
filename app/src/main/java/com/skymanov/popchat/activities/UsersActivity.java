@@ -1,5 +1,6 @@
 package com.skymanov.popchat.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -9,6 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.skymanov.popchat.adapters.UsersAdapter;
 import com.skymanov.popchat.databinding.ActivityUsersBinding;
+import com.skymanov.popchat.listeners.UserListener;
 import com.skymanov.popchat.models.User;
 import com.skymanov.popchat.utilities.Constants;
 import com.skymanov.popchat.utilities.PreferenceManager;
@@ -16,7 +18,7 @@ import com.skymanov.popchat.utilities.PreferenceManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsersActivity extends AppCompatActivity {
+public class UsersActivity extends AppCompatActivity implements UserListener {
     private ActivityUsersBinding binding;
     private PreferenceManager preferenceManager;
 
@@ -57,7 +59,7 @@ public class UsersActivity extends AppCompatActivity {
                 }
 
                 if (users.size() > 0) {
-                    UsersAdapter usersAdapter = new UsersAdapter(users);
+                    UsersAdapter usersAdapter = new UsersAdapter(users, this);
                     binding.userRecyclerView.setAdapter(usersAdapter);
                     binding.userRecyclerView.setVisibility(View.VISIBLE);
                 } else {
@@ -81,5 +83,13 @@ public class UsersActivity extends AppCompatActivity {
             return;
         }
         binding.progressbar.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onUserClicked(User user) {
+        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+        intent.putExtra(Constants.KEY_USER, user);
+        startActivity(intent);
+        finish();
     }
 }
