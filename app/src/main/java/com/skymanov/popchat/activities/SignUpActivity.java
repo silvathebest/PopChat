@@ -62,12 +62,15 @@ public class SignUpActivity extends AppCompatActivity {
 
     private void signUp() {
         loading(true);
+
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         HashMap<String, Object> user = new HashMap<>();
+
         user.put(Constants.KEY_NAME, binding.inputName.getText().toString().trim());
         user.put(Constants.KEY_EMAIL, binding.inputEmail.getText().toString().trim());
         user.put(Constants.KEY_PASSWORD, binding.inputPassword.getText().toString().trim());
         user.put(Constants.KEY_IMAGE, encodedImage);
+
         database.collection(Constants.KEY_COLLECTION_USERS)
                 .add(user)
                 .addOnSuccessListener(documentReference -> {
@@ -91,9 +94,11 @@ public class SignUpActivity extends AppCompatActivity {
     private String encodeImage(Bitmap bitmap) {
         int previewWidth = 150;
         int previewHeight = bitmap.getHeight() * previewWidth / bitmap.getWidth();
+
         Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, previewWidth, previewHeight, false);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         previewBitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
+
         byte[] bytes = byteArrayOutputStream.toByteArray();
         return Base64.encodeToString(bytes, Base64.DEFAULT);
     }
@@ -148,6 +153,7 @@ public class SignUpActivity extends AppCompatActivity {
             showToast("Password & confirm password must be the same");
             return false;
         }
+
         return true;
     }
 
@@ -155,9 +161,10 @@ public class SignUpActivity extends AppCompatActivity {
         if (isLoading) {
             binding.buttonSignUp.setVisibility(View.INVISIBLE);
             binding.progressbar.setVisibility(View.VISIBLE);
-        } else {
-            binding.buttonSignUp.setVisibility(View.VISIBLE);
-            binding.progressbar.setVisibility(View.INVISIBLE);
+            return;
         }
+
+        binding.buttonSignUp.setVisibility(View.VISIBLE);
+        binding.progressbar.setVisibility(View.INVISIBLE);
     }
 }
