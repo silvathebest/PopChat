@@ -17,6 +17,7 @@
         <entry key="app/src/main/res/layout/activity_sign_up.xml" value="0.2105978260869565" />
         <entry key="app/src/main/res/layout/activity_users.xml" value="0.25" />
         <entry key="app/src/main/res/layout/item_container_received_message.xml" value="0.22780797101449277" />
+        <entry key="app/src/main/res/layout/item_container_recent_conversion.xml" value="0.22418478260869565" />
         <entry key="app/src/main/res/layout/item_container_send_message.xml" value="0.22780797101449277" />
         <entry key="app/src/main/res/layout/item_container_user.xml" value="0.5" />
       </map>
