@@ -16,7 +16,7 @@
         android:layout_marginTop="@dimen/_12sdp"
         android:background="@drawable/background_icon"
         android:scaleType="center"
-        app:layout_constraintBaseline_toTopOf="parent"
+        app:layout_constraint_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:riv_corner_radius="8dp" />
 

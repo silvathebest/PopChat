@@ -11,8 +11,10 @@
         <entry key="app/src/main/res/drawable/background_image.xml" value="0.25925925925925924" />
         <entry key="app/src/main/res/drawable/background_received_message.xml" value="0.2564814814814815" />
         <entry key="app/src/main/res/drawable/background_sent_message.xml" value="0.2564814814814815" />
-        <entry key="app/src/main/res/layout/activity_chat.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.22780797101449277" />
+        <entry key="app/src/main/res/drawable/ic_logout.xml" value="0.20833333333333334" />
+        <entry key="app/src/main/res/drawable/ic_round_circle_24.xml" value="0.20833333333333334" />
+        <entry key="app/src/main/res/layout/activity_chat.xml" value="0.1514644351464435" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1858378224180462" />
         <entry key="app/src/main/res/layout/activity_sign_in.xml" value="0.2105978260869565" />
         <entry key="app/src/main/res/layout/activity_sign_up.xml" value="0.2105978260869565" />
         <entry key="app/src/main/res/layout/activity_users.xml" value="0.25" />

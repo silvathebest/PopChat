@@ -131,10 +131,8 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void sendNotification(String messageBody) {
-        ApiClient.getClient().create(ApiService.class).sendMessage(
-                Constants.getRemoteMsgHeaders(),
-                messageBody
-        ).enqueue(new Callback<String>() {
+        ApiClient.getClient().create(ApiService.class)
+                .sendMessage(Constants.getRemoteMsgHeaders(), messageBody).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful()) {
@@ -146,13 +144,11 @@ public class ChatActivity extends BaseActivity {
                             if (responseJson.getInt("failure") == 1) {
                                 JSONObject error = (JSONObject) results.get(0);
                                 showToast(error.getString("error"));
-                                return;
                             }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    showToast("Notification sent successfully");
                 } else {
                     showToast("Error: " + response.code());
                 }
@@ -259,7 +255,7 @@ public class ChatActivity extends BaseActivity {
     }
 
     private String getReadableDateTime(Date date) {
-        return new SimpleDateFormat("MMMM dd, yyyy - hh:mm a", Locale.getDefault()).format(date);
+        return new SimpleDateFormat("HH:mm", Locale.getDefault()).format(date);
     }
 
     private void addConversion(HashMap<String, Object> conversion) {

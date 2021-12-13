@@ -1,5 +1,9 @@
 package com.skymanov.popchat.utilities;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
 import java.util.HashMap;
 
 public class Constants {
@@ -39,5 +43,10 @@ public class Constants {
             remoteMsgHeaders.put(REMOTE_MSG_CONTENT_TYPE, "application/json");
         }
         return remoteMsgHeaders;
+    }
+
+    public static Bitmap getDecodedImage(String encodedImage) {
+        byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
 }
