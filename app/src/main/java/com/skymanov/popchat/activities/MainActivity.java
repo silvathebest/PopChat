@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends BaseActivity implements ConversionListener {
 
@@ -36,6 +38,7 @@ public class MainActivity extends BaseActivity implements ConversionListener {
     private List<ChatMessage> conversations;
     private RecentConversationsAdapter conversationsAdapter;
     private FirebaseFirestore database;
+    public long totalTime;
 
 
     @Override
@@ -49,6 +52,7 @@ public class MainActivity extends BaseActivity implements ConversionListener {
         getToken();
         setListeners();
         listenConversations();
+        createOnlineTimer();
     }
 
     private void init() {
@@ -56,6 +60,21 @@ public class MainActivity extends BaseActivity implements ConversionListener {
         conversationsAdapter = new RecentConversationsAdapter(conversations, this);
         binding.conversationsRecyclerView.setAdapter(conversationsAdapter);
         database = FirebaseFirestore.getInstance();
+    }
+
+    private void createOnlineTimer() {
+        database.collection(Constants.KEY_COLLECTION_USERS)
+                .document(preferenceManager.getString(Constants.KEY_USER_ID))
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    totalTime = documentSnapshot.getLong(Constants.KEY_TOTAL_TIME);
+                    Timer timer = new Timer();
+                    timer.scheduleAtFixedRate(new TimerTask() {
+                        public void run() {
+                            totalTime++;
+                        }
+                    }, 0, 1000);
+                });
     }
 
     private void setListeners() {
@@ -169,5 +188,13 @@ public class MainActivity extends BaseActivity implements ConversionListener {
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
         intent.putExtra(Constants.KEY_USER, user);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        database.collection(Constants.KEY_COLLECTION_USERS)
+                .document(preferenceManager.getString(Constants.KEY_USER_ID))
+                .update(Constants.KEY_TOTAL_TIME, totalTime);
     }
 }

@@ -3,7 +3,12 @@ package com.skymanov.popchat.activities;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
@@ -30,6 +35,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -79,6 +88,8 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void sendMessage() {
+        if (binding.inputMessage.getText().toString().trim().isEmpty()) return;
+
         HashMap<String, Object> message = new HashMap<>();
 
         message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
@@ -123,6 +134,7 @@ public class ChatActivity extends BaseActivity {
                 showToast(e.getMessage());
             }
         }
+
         binding.inputMessage.setText(null);
     }
 
@@ -217,7 +229,9 @@ public class ChatActivity extends BaseActivity {
                     chatMessages.add(chatMessage);
                 }
             }
+
             Collections.sort(chatMessages, (obj1, obj2) -> obj1.dateObject.compareTo(obj2.dateObject));
+
             if (count == 0) {
                 chatAdapter.notifyDataSetChanged();
             } else {
@@ -249,9 +263,63 @@ public class ChatActivity extends BaseActivity {
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> onBackPressed());
         binding.layoutSend.setOnClickListener(v -> sendMessage());
-        binding.imageInfo.setOnClickListener(v -> {
+        binding.imageInfo.setOnClickListener(v -> createPdf());
+    }
 
-        });
+    private void createPdf() {
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(14);
+        paint.setStyle(Paint.Style.FILL);
+
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "report.pdf");
+        PdfDocument pdfDocument = new PdfDocument();
+        AtomicLong totalTime = new AtomicLong();
+
+        database.collection(Constants.KEY_COLLECTION_USERS)
+                .document(receiverUser.id)
+                .get()
+                .addOnCompleteListener(snapshotTask -> {
+                    if (snapshotTask.isSuccessful() && snapshotTask.getResult() != null) {
+                        totalTime.set(snapshotTask.getResult().getLong(Constants.KEY_TOTAL_TIME));
+                    }
+                });
+
+        database.collection(Constants.KEY_COLLECTION_CHAT)
+                .whereEqualTo(Constants.KEY_SENDER_ID, receiverUser.id)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0) {
+
+                        int counter = 0;
+
+                        while (counter < Objects.requireNonNull(task.getResult()).getDocuments().size()) {
+                            counter++;
+                        }
+
+                        try (FileOutputStream out = new FileOutputStream(file)) {
+                            PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(500, 500, 1).create();
+                            PdfDocument.Page page = pdfDocument.startPage(pageInfo);
+                            Canvas c = page.getCanvas();
+                            c.drawText("Name: " + receiverUser.name, 20, 20, paint);
+                            c.drawText("Total message count: " + counter, 20, 40, paint);
+                            c.drawText("Total time spent online: " + totalTime, 20, 60, paint);
+                            c.save();
+                            pdfDocument.finishPage(page);
+                            pdfDocument.writeTo(out);
+                            out.flush();
+
+                            showToast("Report saved to " + file.getPath());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            showToast("Error: " + e.getMessage());
+                        } finally {
+                            pdfDocument.close();
+                        }
+                    } else {
+                        showToast("This user didn't write any message yet");
+                    }
+                });
     }
 
     private String getReadableDateTime(Date date) {
