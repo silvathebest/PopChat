@@ -1,6 +1,7 @@
 package com.skymanov.popchat.activities;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Base64;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -263,16 +265,29 @@ public class ChatActivity extends BaseActivity {
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> onBackPressed());
         binding.layoutSend.setOnClickListener(v -> sendMessage());
-        binding.imageInfo.setOnClickListener(v -> createPdf());
+        binding.imageInfo.setOnClickListener(v -> {
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle("Do you want to create report?");
+            // Set up the input
+            final EditText input = new EditText(this);
+            alert.setView(input);
+            alert.setPositiveButton("Ok", (dialog, whichButton) -> createPdf(input.getText().toString().trim()));
+
+            alert.setNegativeButton("Cancel", (dialog, whichButton) -> {
+            });
+
+            alert.show();
+
+        });
     }
 
-    private void createPdf() {
+    private void createPdf(String keyword) {
         Paint paint = new Paint();
         paint.setColor(Color.BLACK);
         paint.setTextSize(14);
         paint.setStyle(Paint.Style.FILL);
 
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "report.pdf");
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "chatReport.pdf");
         PdfDocument pdfDocument = new PdfDocument();
         AtomicLong totalTime = new AtomicLong();
 
@@ -291,19 +306,42 @@ public class ChatActivity extends BaseActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0) {
 
-                        int counter = 0;
+                        int totalMessage = 0;
+                        int totalMessageCountByKeyword = 0;
+                        while (totalMessage < Objects.requireNonNull(task.getResult()).getDocuments().size()) {
+                            totalMessage++;
+                        }
 
-                        while (counter < Objects.requireNonNull(task.getResult()).getDocuments().size()) {
-                            counter++;
+                        for (DocumentSnapshot documentSnapshot : task.getResult().getDocuments()) {
+                            String message = documentSnapshot.getString(Constants.KEY_MESSAGE);
+                            if (!message.contains(keyword)) continue;
+                            totalMessageCountByKeyword++;
                         }
 
                         try (FileOutputStream out = new FileOutputStream(file)) {
-                            PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(500, 500, 1).create();
+                            PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(500, totalMessageCountByKeyword * 30 + 120, 1).create();
                             PdfDocument.Page page = pdfDocument.startPage(pageInfo);
                             Canvas c = page.getCanvas();
                             c.drawText("Name: " + receiverUser.name, 20, 20, paint);
-                            c.drawText("Total message count: " + counter, 20, 40, paint);
+                            c.drawText("Total message count: " + totalMessage, 20, 40, paint);
                             c.drawText("Total time spent online: " + totalTime, 20, 60, paint);
+                            c.drawText("All messages by keyword", 20, 100, paint);
+
+                            int y = 120;
+                            for (DocumentSnapshot documentSnapshot : task.getResult().getDocuments()) {
+                                String message = documentSnapshot.getString(Constants.KEY_MESSAGE);
+
+                                assert message != null;
+                                if (!message.contains(keyword)) continue;
+
+                                String date = documentSnapshot.getDate(Constants.KEY_TIMESTAMP).toString();
+
+                                c.drawText(receiverUser.name + ": ", 20, y, paint);
+                                c.drawText(documentSnapshot.getString(Constants.KEY_MESSAGE), receiverUser.name.length() * 8 + 20, y, paint);
+                                c.drawText(date, (receiverUser.name.length() + message.length()) * 8 + 20, y, paint);
+                                y += 20;
+                            }
+
                             c.save();
                             pdfDocument.finishPage(page);
                             pdfDocument.writeTo(out);
