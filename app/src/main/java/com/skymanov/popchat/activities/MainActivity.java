@@ -174,6 +174,7 @@ public class MainActivity extends BaseActivity implements ConversionListener {
                 .document(preferenceManager.getString(Constants.KEY_USER_ID));
         HashMap<String, Object> updates = new HashMap<>();
         updates.put(Constants.KEY_FCM_TOKEN, FieldValue.delete());
+        addTotalTime();
         documentReference.update(updates)
                 .addOnSuccessListener(unused -> {
                     preferenceManager.clear();
@@ -193,6 +194,13 @@ public class MainActivity extends BaseActivity implements ConversionListener {
     @Override
     protected void onPause() {
         super.onPause();
+
+        if (preferenceManager.getString(Constants.KEY_USER_ID) == null) return;
+
+        addTotalTime();
+    }
+
+    private void addTotalTime() {
         database.collection(Constants.KEY_COLLECTION_USERS)
                 .document(preferenceManager.getString(Constants.KEY_USER_ID))
                 .update(Constants.KEY_TOTAL_TIME, totalTime);

@@ -146,6 +146,10 @@ public class SignUpActivity extends AppCompatActivity {
             showToast("Enter password");
             return false;
         }
+        if (binding.inputPassword.getText().toString().trim().length() < 6) {
+            showToast("Your password must be more than 5 character");
+            return false;
+        }
         if (binding.inputConfirmPassword.getText().toString().trim().isEmpty()) {
             showToast("Confirm your password");
             return false;
